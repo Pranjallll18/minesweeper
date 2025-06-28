@@ -1,4 +1,3 @@
-
 # Use a specific, minimal base image for reproducibility and security
 FROM node:20.17.0-alpine3.20
 
@@ -8,7 +7,7 @@ WORKDIR /app
 # Copy package files for dependency installation
 COPY package*.json ./
 
-# Create non-root user and group with explicit UID/GID, combine with chown to reduce layers
+# Create non-root user and group with explicit UID/GID, set ownership and permissions
 RUN addgroup -g 1001 appgroup && \
     adduser -u 1001 -S -G appgroup appuser && \
     chown -R appuser:appgroup /app && \
@@ -17,13 +16,15 @@ RUN addgroup -g 1001 appgroup && \
 # Switch to non-root user for security
 USER appuser
 
-# Set npm cache to a user-writable directory and install dependencies securely
+# Set npm cache to a user-writable directory and install dependencies
 ENV NPM_CONFIG_CACHE=/tmp/.npm
-RUN npm ci --only=production --ignore-scripts && \
+RUN npm ci --ignore-scripts && \
     rm -rf /tmp/.npm
 
-# Copy application code with proper ownership
+# Copy application code with proper ownership and no write permissions
 COPY --chown=appuser:appgroup . .
+RUN find /app -type d -exec chmod 555 {} \; && \
+    find /app -type f -exec chmod 444 {} \;
 
 # Expose application port
 EXPOSE 3000
