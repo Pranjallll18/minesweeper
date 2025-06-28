@@ -1,6 +1,6 @@
 
 # Use a specific, minimal base image for reproducibility and security
-FROM node:14.21.3-alpine3.18
+FROM node:20.17.0-alpine3.20
 
 # Set working directory inside the container
 WORKDIR /app
