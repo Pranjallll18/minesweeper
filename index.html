@@ -665,38 +665,39 @@
             }
 
             function revealCell(row, col) {
-                let cell = $(`.cell[data-row=${row}][data-col=${col}]`);
-                if (cell.hasClass('revealed') || cell.hasClass('flag')) {
-                    return;
-                }
-                
-                cell.addClass('revealed');
+    let cell = $(`.cell[data-row=${row}][data-col=${col}]`);
+    if (cell.hasClass('revealed') || cell.hasClass('flag')) {
+        return;
+    }
+    
+    cell.addClass('revealed');
 
-                if (minefield[row][col] === 'M') {
-                    cell.addClass('mine').html('<i class="fas fa-bomb"></i>');
-                    gameOver = true;
-                    clearInterval(gameInterval);
-                    explosionSound.currentTime = 0;
-                    explosionSound.play();
-                    revealAllMines();
-                    $('#message').text('Game Over!').addClass('game-over');
-                    
-                    // Show scorecard after delay
-                    setTimeout(showScorecard, 1500, false);
-                } else {
-                    cell.addClass('safe');
-                    
-                    // Add number or diamond
-                    if (minefield[row][col] === 0) {
-                        cell.html('<i class="fas fa-gem"></i>');
-                        revealAdjacentCells(row, col);
-                    } else {
-                        cell.text(minefield[row][col]);
-                        cell.addClass(`safe-${minefield[row][col]}`);
-                    }
-                }
-            }
+    if (minefield[row][col] === 'M') {
+        // Change to red background when mine
+        cell.css('background-color', 'var(--mine-color)').html('<i class="fas fa-bomb"></i>');
+        gameOver = true;
+        clearInterval(gameInterval);
+        explosionSound.currentTime = 0;
+        explosionSound.play();
 
+        // Reveal all mines
+        revealAllMines();
+
+        $('#message').text('Game Over!').addClass('game-over');
+        setTimeout(showScorecard, 1500, false);
+    } else {
+        // Change to green background when safe
+        cell.css('background-color', 'var(--safe-color)');
+        
+        if (minefield[row][col] === 0) {
+            cell.html('<i class="fas fa-gem"></i>');
+            revealAdjacentCells(row, col);
+        } else {
+            cell.text(minefield[row][col]);
+            cell.addClass(`safe-${minefield[row][col]}`);
+        }
+    }
+}
             function toggleFlag(row, col) {
                 let cell = $(`.cell[data-row=${row}][data-col=${col}]`);
                 if (cell.hasClass('revealed')) {
@@ -771,12 +772,10 @@
             
             // Event Listeners
             $('#start-game').on('click', function() {
-                applyDifficulty();
                 initializeGame();
             });
             
             $('#start').on('click', function () {
-                applyDifficulty();
                 initializeGame();
             });
 
@@ -789,29 +788,14 @@
             });
             
             $('#play-again').on('click', function() {
-                applyDifficulty();
                 initializeGame();
             });
             
             $('#to-main-menu').on('click', function() {
                 showScreen("welcome-screen");
             });
-            
-            function applyDifficulty() {
-                const difficulty = $('#difficulty').val();
-                if (difficulty === 'easy') {
-                    $('#size').val(8);
-                    $('#mines').val(10);
-                } else if (difficulty === 'medium') {
-                    $('#size').val(12);
-                    $('#mines').val(25);
-                } else if (difficulty === 'hard') {
-                    $('#size').val(16);
-                    $('#mines').val(50);
-                }
-            }
 
-            applyDifficulty();  
+              
         });
     </script>
 </body>
